@@ -4,9 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mic, Calculator } from "lucide-react";
+import { Mic, Calculator, Volume2, VolumeX } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { useVoiceAssistant } from "@/hooks/useVoiceAssistant";
 
 export default function DosageCalculator() {
   const [drugName, setDrugName] = useState("");
@@ -16,6 +17,7 @@ export default function DosageCalculator() {
   const [calculatedDose, setCalculatedDose] = useState("");
   const [frequency, setFrequency] = useState("");
   const { toast } = useToast();
+  const { isListening, startListening, stopListening, isSpeaking, stopSpeaking } = useVoiceAssistant();
 
   const handleCalculate = () => {
     if (!drugName || !age || !weight) {
@@ -41,10 +43,11 @@ export default function DosageCalculator() {
   };
 
   const handleVoiceInput = () => {
-    toast({
-      title: "Voice Input",
-      description: "Amira is ready to help with dosage calculation",
-    });
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
   };
 
   return (
@@ -62,14 +65,36 @@ export default function DosageCalculator() {
           <Card className="p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold">Patient Information</h2>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={handleVoiceInput}
-              >
-                <Mic className="w-4 h-4 mr-2" />
-                Voice Input
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleVoiceInput}
+                >
+                  {isListening ? (
+                    <>
+                      <Volume2 className="w-4 h-4 mr-2 animate-pulse" />
+                      Listening...
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="w-4 h-4 mr-2" />
+                      Voice Input
+                    </>
+                  )}
+                </Button>
+                
+                {isSpeaking && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={stopSpeaking}
+                  >
+                    <VolumeX className="w-4 h-4 mr-2" />
+                    Stop
+                  </Button>
+                )}
+              </div>
             </div>
 
             <div className="space-y-4">

@@ -1,36 +1,20 @@
 import { Layout } from "@/components/Layout/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Volume2 } from "lucide-react";
-import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { Mic, MicOff, Volume2, VolumeX } from "lucide-react";
+import { useVoiceAssistant } from "@/hooks/useVoiceAssistant";
 
 export default function VoiceAssistant() {
-  const [isListening, setIsListening] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const { toast } = useToast();
-
-  const handleStartListening = async () => {
-    setIsConnecting(true);
-    
-    // Simulate connection delay
-    setTimeout(() => {
-      setIsConnecting(false);
-      setIsListening(true);
-      toast({
-        title: "Amira is listening",
-        description: "Your AI pharmacy assistant is ready to help",
-      });
-    }, 1500);
-  };
-
-  const handleStopListening = () => {
-    setIsListening(false);
-    toast({
-      title: "Conversation ended",
-      description: "Amira is now offline",
-    });
-  };
+  const {
+    isListening,
+    isConnecting,
+    isSpeaking,
+    transcript,
+    response,
+    startListening,
+    stopListening,
+    stopSpeaking,
+  } = useVoiceAssistant();
 
   return (
     <Layout>
@@ -52,6 +36,10 @@ export default function VoiceAssistant() {
               <div className="animate-pulse">
                 <Volume2 className="w-16 h-16 text-primary" />
               </div>
+            ) : isSpeaking ? (
+              <div className="animate-pulse">
+                <Volume2 className="w-16 h-16 text-primary" />
+              </div>
             ) : (
               <Mic className="w-16 h-16 text-muted-foreground" />
             )}
@@ -60,11 +48,13 @@ export default function VoiceAssistant() {
           <div className="space-y-2">
             <h2 className="text-xl font-semibold">
               {isConnecting ? "Connecting to Amira..." : 
-               isListening ? "Amira is listening..." : "Amira is offline"}
+               isListening ? "Amira is listening..." : 
+               isSpeaking ? "Amira is speaking..." : "Amira is offline"}
             </h2>
             <p className="text-muted-foreground">
               {isConnecting ? "Please wait while we connect you to your AI assistant" :
                isListening ? "Speak now to ask about medications, dosages, or drug interactions" :
+               isSpeaking ? "Amira is responding to your question" :
                "Click the button below to start talking with Amira"}
             </p>
           </div>
@@ -72,8 +62,8 @@ export default function VoiceAssistant() {
           <div className="flex justify-center gap-4">
             {!isListening ? (
               <Button 
-                onClick={handleStartListening}
-                disabled={isConnecting}
+                onClick={startListening}
+                disabled={isConnecting || isSpeaking}
                 size="lg"
                 className="px-8"
               >
@@ -88,13 +78,25 @@ export default function VoiceAssistant() {
               </Button>
             ) : (
               <Button 
-                onClick={handleStopListening}
+                onClick={stopListening}
                 variant="destructive"
                 size="lg"
                 className="px-8"
               >
                 <MicOff className="w-5 h-5 mr-2" />
                 End Conversation
+              </Button>
+            )}
+            
+            {isSpeaking && (
+              <Button 
+                onClick={stopSpeaking}
+                variant="outline"
+                size="lg"
+                className="px-8"
+              >
+                <VolumeX className="w-5 h-5 mr-2" />
+                Stop Speaking
               </Button>
             )}
           </div>
@@ -104,6 +106,25 @@ export default function VoiceAssistant() {
             <p>Available in Arabic and English</p>
           </div>
         </Card>
+
+        {/* Live Transcript and Response */}
+        {(transcript || response) && (
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            {transcript && (
+              <Card className="p-6">
+                <h3 className="font-semibold mb-2 text-primary">You said:</h3>
+                <p className="text-sm text-muted-foreground">{transcript}</p>
+              </Card>
+            )}
+            
+            {response && (
+              <Card className="p-6">
+                <h3 className="font-semibold mb-2 text-primary">Amira responds:</h3>
+                <p className="text-sm text-muted-foreground">{response}</p>
+              </Card>
+            )}
+          </div>
+        )}
 
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="p-6">
