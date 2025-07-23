@@ -10,6 +10,7 @@ import Drugs from "./pages/Drugs";
 import PersonalCare from "./pages/PersonalCare";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import { supabase } from "@/integrations/supabase/client";
 
 const queryClient = new QueryClient();
 

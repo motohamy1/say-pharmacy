@@ -14,20 +14,40 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      [_ in never]: never
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
+      drugs: {
+        Row: {
+          id: number;
+          Drugname: string;
+          price: number;
+          Date: Date;
+          Price_prev: string;
+          Category: string;
+          Form: string;
+        };
+        Insert: {
+          id?: number;
+          Drugname: string;
+          price: number;
+          Date: Date;
+          Price_prev: string;
+          Category: string;
+          Form: string;
+        };
+        Update: {
+          id?: number;
+          Drugname?: string;
+          price?: number;
+          Date?: Date;
+          Price_prev?: string;
+          Category?: string;
+          Form?: string;
+        };
+      };
+    };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   }
 }
 
