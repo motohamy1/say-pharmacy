@@ -24,6 +24,7 @@ export const useVoiceAssistant = (): UseVoiceAssistantReturn => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState('');
+  const [response, setResponse] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   
   const recognitionRef = useRef<SpeechRecognition | null>(null);
