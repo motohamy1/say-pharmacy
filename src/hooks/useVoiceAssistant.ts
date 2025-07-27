@@ -1,17 +1,22 @@
 import { useState, useRef, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
+
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
 
 interface UseVoiceAssistantReturn {
   isListening: boolean;
   isConnecting: boolean;
   isSpeaking: boolean;
   transcript: string;
-  response: string;
+  messages: Message[];
   startListening: () => Promise<void>;
   stopListening: () => void;
   speak: (text: string) => void;
   stopSpeaking: () => void;
+  sendMessage: (message: string) => Promise<void>;
 }
 
 export const useVoiceAssistant = (): UseVoiceAssistantReturn => {
@@ -19,7 +24,7 @@ export const useVoiceAssistant = (): UseVoiceAssistantReturn => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const [response, setResponse] = useState('');
+  const [messages, setMessages] = useState<Message[]>([]);
   
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
@@ -36,27 +41,6 @@ export const useVoiceAssistant = (): UseVoiceAssistantReturn => {
     }
     return true;
   }, [toast]);
-
-  const sendToAI = useCallback(async (message: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('ai-pharmacy-assistant', {
-        body: { message, context: 'voice_interaction' }
-      });
-
-      if (error) throw error;
-      
-      setResponse(data.response);
-      speak(data.response);
-      
-    } catch (error) {
-      console.error('AI Assistant Error:', error);
-      toast({
-        title: "AI Error",
-        description: "Failed to get response from Amira. Please try again.",
-        variant: "destructive",
-      });
-    }
-  }, []);
 
   const speak = useCallback((text: string) => {
     if (!('speechSynthesis' in window)) {
@@ -96,6 +80,62 @@ export const useVoiceAssistant = (): UseVoiceAssistantReturn => {
     window.speechSynthesis.cancel();
     setIsSpeaking(false);
   }, []);
+
+
+
+  const processDrugQuery = useCallback(async (message: string): Promise<any[] | null> => {
+    const drugKeywords = ['drug', 'medication', 'pill', 'medicine', 'drugname'];
+    const messageLower = message.toLowerCase();
+
+  //   for (const keyword of drugKeywords) {
+  //     if (messageLower.includes(keyword)) {
+  //       const keywordIndex = messageLower.indexOf(keyword);
+  //       // Try to extract a potential drug name after the keyword
+  //       const potentialDrugName = message.substring(keywordIndex + keyword.length).trim();
+  //       if (potentialDrugName) {
+  //         // Basic cleaning: remove punctuation that might be attached
+  //         const cleanedDrugName = potentialDrugName.replace(/[.,!?;:]$/, '').trim();
+  //         if (cleanedDrugName) {
+  //           const data = await fetchDrugData(cleanedDrugName);
+  //           if (data && data.length > 0) {
+  //             return data; // Return the first found drug data
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  //   return null; 
+  // }, [fetchDrugData]); 
+
+  // const sendToAI = useCallback(async (message: string) => {
+  //   setMessages((prev) => [...prev, { role: 'user', content: message }]);
+    
+  //   const drugData = await processDrugQuery(message); 
+
+  //   try {
+  //     const { data, error } = await supabase.functions.invoke('ai-pharmacy-assistant', {
+  //       body: { message, context: 'voice_interaction', drugData } // Pass drugData here
+  //     });
+
+  //     if (error) throw error;
+  //     console.log("AI Response Data:", data);
+  //     setMessages((prev) => [...prev, { role: 'assistant', content: data.response }]);
+  //     speak(data.response);
+      
+  //   } catch (error) {
+  //     console.error('AI Assistant Error:', error);
+  //     toast({
+  //       title: "AI Error",
+  //       description: "Failed to get response from Amira. Please try again.",
+  //       variant: "destructive",
+  //     });
+  //   }
+  // }, [processDrugQuery, speak, toast]); 
+
+  const sendMessage = async (message: string) => {
+    if (!message.trim()) return;
+    await sendToAI(message);
+  };
 
   const startListening = useCallback(async () => {
     if (!checkSpeechSupport()) return;
@@ -155,11 +195,15 @@ export const useVoiceAssistant = (): UseVoiceAssistantReturn => {
           errorMessage = "No speech detected. Please speak clearly.";
         } else if (event.error === 'not-allowed') {
           errorMessage = "Microphone access denied. Please allow microphone access.";
+        } else if (event.error === 'network') {
+          errorMessage = "Network error: Speech recognition service is unavailable. Please check your internet connection.";
         }
         
         toast({
           title: "Speech Recognition Error",
-          description: errorMessage,
+          description: event.error === 'network'
+            ? "Network error: Speech recognition service is unavailable. Please check your internet connection."
+            : errorMessage,
           variant: "destructive",
         });
       };
@@ -174,9 +218,25 @@ export const useVoiceAssistant = (): UseVoiceAssistantReturn => {
       
     } catch (error) {
       setIsConnecting(false);
+      let errorMessage = "Failed to access microphone. Please check permissions.";
+      if (error instanceof DOMException) {
+        switch (error.name) {
+          case 'NotAllowedError':
+            errorMessage = "Microphone access denied. Please allow microphone access in your browser settings.";
+            break;
+          case 'NotFoundError':
+            errorMessage = "No microphone found. Please ensure a microphone is connected.";
+            break;
+          case 'NotReadableError':
+            errorMessage = "Microphone is not readable. It might be in use by another application.";
+            break;
+          default:
+            errorMessage = `Microphone error: ${error.name}. Please check permissions.`;
+        }
+      }
       toast({
         title: "Microphone Error",
-        description: "Failed to access microphone. Please check permissions.",
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -200,10 +260,11 @@ export const useVoiceAssistant = (): UseVoiceAssistantReturn => {
     isConnecting,
     isSpeaking,
     transcript,
-    response,
+    messages,
     startListening,
     stopListening,
     speak,
     stopSpeaking,
+    sendMessage,
   };
-};
+},)}; 

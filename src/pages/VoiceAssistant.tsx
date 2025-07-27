@@ -102,7 +102,7 @@ export default function VoiceAssistant() {
           </div>
 
           <div className="text-sm text-muted-foreground">
-            <p>Powered by advanced AI technology</p>
+            <p>Powered by Gemini AI</p>
             <p>Available in Arabic and English</p>
           </div>
         </Card>

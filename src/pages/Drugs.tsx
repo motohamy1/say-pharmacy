@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 
 export default function Drugs() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -14,16 +13,17 @@ export default function Drugs() {
   useEffect(() => {
     const fetchDrugs = async () => {
       setLoading(true);
-      let query = supabase.from("drugs").select("*");
-      if (searchTerm) {
-        query = query.ilike("Drugname", `%${searchTerm}%`);
-      }
-      const { data, error } = await query;
-      if (error) {
-        console.error(error);
+      try {
+        // TODO: Replace with your custom backend API call
+        // const response = await fetch(`/api/drugs${searchTerm ? `?search=${searchTerm}` : ''}`);
+        // const data = await response.json();
+        // setDrugs(data);
+        
+        // Placeholder: Empty results until backend is implemented
         setDrugs([]);
-      } else {
-        setDrugs(data);
+      } catch (error) {
+        console.error('Error fetching drugs:', error);
+        setDrugs([]);
       }
       setLoading(false);
     };
