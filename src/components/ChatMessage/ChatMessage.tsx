@@ -21,7 +21,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
     >
       {!isUser && (
         <Avatar className="w-10 h-10 border">
-          <AvatarImage src="/placeholder.svg" alt="Amira" />
+          <AvatarImage src="/placeholder.svg" alt="mira" />
           <AvatarFallback>A</AvatarFallback>
         </Avatar>
       )}

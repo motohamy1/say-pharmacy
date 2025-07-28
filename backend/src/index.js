@@ -1,20 +1,21 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const { scrapeEDAData } = require('./utils/edaScraper');
 
 const app = express();
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin: 'http://localhost:8080', // Frontend is running on port 8080
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
-// A simple test route
-app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to the Say Pharmacy API!' });
-});
-
+// Start server
 const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on port ${PORT}`);
+  console.log(`API available at http://localhost:${PORT}/api`);
 });

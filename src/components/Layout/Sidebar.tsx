@@ -83,7 +83,7 @@ export function Sidebar() {
               </div>
               {!isCollapsed && (
                 <div className="text-left">
-                  <p className="text-sm font-medium">Dr. Amira</p>
+                  <p className="text-sm font-medium"> User</p>
                   <p className="text-xs text-muted-foreground">Pharmacist</p>
                 </div>
               )}

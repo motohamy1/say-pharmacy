@@ -10,7 +10,7 @@ const Index = () => {
   const features = [
     {
       title: "AI Voice Assistant",
-      description: "Meet Amira, your intelligent pharmacy assistant",
+      description: "Meet mira, your intelligent pharmacy assistant",
       icon: Mic,
       href: "/voice-assistant",
       image: aiVoiceImage

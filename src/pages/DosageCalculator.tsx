@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Mic, Calculator, Volume2, VolumeX } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { useVoiceAssistant } from "@/hooks/useVoiceAssistant";
 
 export default function DosageCalculator() {
   const [drugName, setDrugName] = useState("");
@@ -17,7 +16,6 @@ export default function DosageCalculator() {
   const [calculatedDose, setCalculatedDose] = useState("");
   const [frequency, setFrequency] = useState("");
   const { toast } = useToast();
-  const { isListening, startListening, stopListening, isSpeaking, stopSpeaking } = useVoiceAssistant();
 
   const handleCalculate = () => {
     if (!drugName || !age || !weight) {
@@ -42,13 +40,13 @@ export default function DosageCalculator() {
     });
   };
 
-  const handleVoiceInput = () => {
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
-    }
-  };
+  // const handleVoiceInput = () => {
+  //   if (isListening) {
+  //     stopListening();
+  //   } else {
+  //     startListening();
+  //   }
+  // };
 
   return (
     <Layout>
@@ -56,7 +54,7 @@ export default function DosageCalculator() {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-4">Dosage Calculator</h1>
           <p className="text-muted-foreground">
-            AI-powered medication dosage calculations with Amira's assistance
+            AI-powered medication dosage calculations with mira's assistance
           </p>
         </div>
 
@@ -69,31 +67,31 @@ export default function DosageCalculator() {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={handleVoiceInput}
+                  
                 >
-                  {isListening ? (
+                  
                     <>
                       <Volume2 className="w-4 h-4 mr-2 animate-pulse" />
                       Listening...
                     </>
-                  ) : (
+                  
                     <>
                       <Mic className="w-4 h-4 mr-2" />
                       Voice Input
                     </>
-                  )}
+                  
                 </Button>
                 
-                {isSpeaking && (
+                
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={stopSpeaking}
+                    
                   >
                     <VolumeX className="w-4 h-4 mr-2" />
                     Stop
                   </Button>
-                )}
+                
               </div>
             </div>
 

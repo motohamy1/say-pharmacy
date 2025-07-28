@@ -2,79 +2,81 @@ import { Layout } from "@/components/Layout/Layout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, RefreshCw, Database } from "lucide-react";
 import { useEffect, useState } from "react";
+
 
 export default function Drugs() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [drugs, setDrugs] = useState([]);
-  const [loading, setLoading] = useState(false);
+  // const [drugs, setDrugs] = useState([]);
+  // const [loading, setLoading] = useState(false);
+  // const [databaseStatus, setDatabaseStatus] = useState(null);
+  // const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    const fetchDrugs = async () => {
-      setLoading(true);
-      try {
-        // TODO: Replace with your custom backend API call
-        // const response = await fetch(`/api/drugs${searchTerm ? `?search=${searchTerm}` : ''}`);
-        // const data = await response.json();
-        // setDrugs(data);
-        
-        // Placeholder: Empty results until backend is implemented
-        setDrugs([]);
-      } catch (error) {
-        console.error('Error fetching drugs:', error);
-        setDrugs([]);
-      }
-      setLoading(false);
-    };
-    fetchDrugs();
-  }, [searchTerm]);
+
 
   return (
     <Layout>
-      <div className="p-8 max-w-4xl mx-auto">
-        {/* Header */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <div className="flex items-center text-sm text-muted-foreground mb-4">
-            <span>Home</span>
-            <span className="mx-2">/</span>
-            <span>Drugs</span>
-          </div>
-          <h1 className="text-3xl font-bold mb-4">Drug Search</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            Egyptian Drug Database
+          </h1>
+          <p className="text-gray-600">
+            Search and browse medications from the Egyptian Drug Authority (EDA)
+          </p>
+          
+          
+            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Database className="h-5 w-5 text-blue-600 mr-2" />
+                  <span className="text-sm text-blue-800">
+                    Database Status: drugs loaded
+                  </span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center"
+                >
+                  <RefreshCw className={`h-4 w-4 mr-1  'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
+              </div>
+            </div>
+        </div>
+
+        <div className="mb-6">
           <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 transform 
+                                -translate-y-1/2 text-gray-400 h-5 w-5" />
             <Input
-              placeholder="Search for a drug by name..."
-              className="pl-10"
+              type="text"
+              placeholder="Search by trade name, generic name, or company..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-2 w-full"
             />
           </div>
         </div>
 
-        {/* Results */}
-        <div className="mt-8">
-          {loading ? (
-            <div className="text-center text-muted-foreground">Loading...</div>
-          ) : drugs.length === 0 ? (
-            <div className="text-center text-muted-foreground">No drugs found. Try a different search.</div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {drugs.map((drug) => (
-                <Card key={drug.id} className="p-6 hover:shadow-lg transition-shadow">
-                  <div className="mb-2">
-                    <h3 className="text-lg font-semibold mb-1">{drug.Drugname}</h3>
-                    <div className="text-sm text-muted-foreground mb-1">Form: {drug.Form || "-"}</div>
-                    <div className="text-sm text-muted-foreground mb-1">Category: {drug.Category || "-"}</div>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-lg font-bold text-primary">{drug.price}</span>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
+
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 
+                            border-blue-600"></div>
+          </div>
+        
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          </div>
+        
+
+
+          <div className="text-center py-12">
+            <p className="text-gray-500">
+              {searchTerm ? 'No drugs found matching your search.' : 'No drugs available.'}
+            </p>
+          </div>
       </div>
     </Layout>
   );
