@@ -2,6 +2,7 @@ import { Layout } from "@/components/Layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Mic, MicOff, Volume2, VolumeX, Send, Bot, User } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { chatAPI } from "@/services/api";
 
 export default function VoiceAssistant() {
   const [loading, setLoading] = useState(false);
@@ -78,7 +79,7 @@ export default function VoiceAssistant() {
 
     const userMessage = {
       id: Date.now(),
-      role: 'user',
+      role: 'user' as const,
       content: inputValue,
       timestamp: new Date()
     };
@@ -87,7 +88,47 @@ export default function VoiceAssistant() {
     setInputValue('');
     setLoading(true);
 
+    try {
+      // Format chat history for the API
+      const history = chatMessages.map(msg => ({
+        role: msg.role === 'assistant' ? 'model' as const : 'user' as const,
+        parts: [{ text: msg.content }]
+      }));
 
+      console.log('Sending message to API...', { message: inputValue, history });
+      
+      const data = await chatAPI.sendMessage(inputValue, history);
+      console.log('API Response:', data);
+
+      const assistantMessage = {
+        id: Date.now() + 1,
+        role: 'assistant' as const,
+        content: data.response,
+        timestamp: new Date()
+      };
+
+      setChatMessages(prev => [...prev, assistantMessage]);
+
+    } catch (error) {
+      console.error("Error in handleSendMessage:", {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      
+      const errorMessage = {
+        id: Date.now() + 1,
+        role: 'assistant' as const,
+        content: error instanceof Error && error.message 
+          ? `I'm having trouble connecting to the server: ${error.message}`
+          : 'Sorry, I encountered an error. Please try again later.',
+        timestamp: new Date()
+      };
+      
+      setChatMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleKeyPress = (e) => {
