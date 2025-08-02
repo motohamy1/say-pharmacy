@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "inspect-csv": "node inspect-csv.js",
     "start:all": "node start-dev.js",
-    "backend": "cd backend && npm start",
+    "backend": "cd backend; npm start",
     "frontend": "npm run dev"
   },
   "dependencies": {

@@ -8,14 +8,17 @@
 
 ### 1. Install Dependencies
 
-```bash
+```powershell
 # Install frontend dependencies
 npm install
 
 # Install backend dependencies
-cd backend
-npm install
-cd ..
+cd backend; npm install; cd ..
+
+# Or run them separately:
+# cd backend
+# npm install
+# cd ..
 ```
 
 ### 2. Environment Setup
@@ -36,14 +39,14 @@ npm run start:all
 #### Option 2: Start Servers Separately
 In separate terminals:
 
-```bash
+```powershell
 # Terminal 1: Start backend server
 npm run backend
 # or
-cd backend && npm start
+cd backend; npm start
 ```
 
-```bash
+```powershell
 # Terminal 2: Start frontend server
 npm run frontend
 # or
